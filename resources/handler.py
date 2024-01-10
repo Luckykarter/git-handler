@@ -120,8 +120,6 @@ class GitHandler:
         """
         cp_add_blob_content = 'Add blob content'
         cp_encode_blob_base64 = "Encode blob to Base64"
-        cp_parse_config_yml = 'Parse YAML config'
-        cp_parse_cfg = 'Parse cfg files'
 
     def update(self):
         with Locker() as locker:
@@ -199,17 +197,6 @@ class GitHandler:
             self.cp_add_blob_content(node, file_dict, blob)
         content = file_dict['content']
         file_dict['content'] = base64.b64encode(content.encode(self.CODEPAGE))
-
-    def cp_parse_cfg(self, node: dict, file_dict: dict, blob: git.Blob):
-        if blob.name.endswith('cfg'):
-            content = blob.data_stream.read()
-            params = self.get_params_from_cfg(content)
-            file_dict['attributes'] = params
-
-    def cp_parse_config_yml(self, node: dict, file_dict: dict, blob: git.Blob):
-        if blob.name == 'config.yml':
-            node['config'] = yaml.safe_load(blob.data_stream.read())  # pragma: no cover
-
     def _get_tree(self, res: dict, tree: git.Tree, path: list,
                   idx=0, content_processors: List[Callable[[dict, dict, git.Blob], None]] = None):
         if idx < len(path):
