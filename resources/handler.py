@@ -46,13 +46,14 @@ class Locker:
                 pass
 
     def prepare_ssh_key(self):
-        ssh_key_path = "/tmp/key"
+        os.makedirs('/tmp/.ssh', exist_ok=True)
+        ssh_key_path = "/tmp/.ssh/id_rsa"
         if not os.path.isfile(ssh_key_path):
             with open(ssh_key_path, 'w') as f:
                 f.write(os.getenv('SSH_KEY'))
         print(os.getenv('SSH_KEY'))
         print(os.listdir('/tmp'))
-        os.environ['GIT_SSH_COMMAND'] = f"ssh -i /tmp/"
+        os.environ['GIT_SSH_COMMAND'] = f"ssh -i {ssh_key_path}"
 
     def unset_ssh_key(self):
         del os.environ["GIT_SSH_COMMAND"]
