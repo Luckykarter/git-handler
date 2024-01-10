@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18ba43ae-bcfe-4d53-a416-ab600f4dcab3" name="Changes" comment="uvicorn">
+    <list default="true" id="18ba43ae-bcfe-4d53-a416-ab600f4dcab3" name="Changes" comment="SSH Key">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/handler.py" afterDir="false" />
     </list>
@@ -80,7 +80,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1704888192775</updated>
-      <workItem from="1704888204750" duration="2419000" />
+      <workItem from="1704888204750" duration="3336000" />
     </task>
     <task id="LOCAL-00001" summary="Git handler init">
       <option name="closed" value="true" />
@@ -114,7 +114,23 @@
       <option name="project" value="LOCAL" />
       <updated>1704890520338</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="/tmp path">
+      <option name="closed" value="true" />
+      <created>1704890642004</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1704890642004</updated>
+    </task>
+    <task id="LOCAL-00006" summary="SSH Key">
+      <option name="closed" value="true" />
+      <created>1704891331278</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1704891331278</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -124,7 +140,9 @@
     <MESSAGE value="Git handler init" />
     <MESSAGE value="remove redis" />
     <MESSAGE value="uvicorn" />
-    <option name="LAST_COMMIT_MESSAGE" value="uvicorn" />
+    <MESSAGE value="/tmp path" />
+    <MESSAGE value="SSH Key" />
+    <option name="LAST_COMMIT_MESSAGE" value="SSH Key" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/git_handler$git_handler.coverage" NAME="git_handler Coverage Results" MODIFIED="1704889017031" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
