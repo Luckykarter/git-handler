@@ -161,7 +161,7 @@ class GitHandler:
         return res
 
     def file_contains(self, filename: str, phrases: List[Phrase]):
-        current_file = (f'<a href="{self.url}blob/{self.default_branch}/{filename}" '
+        current_file = (f'<a href="{self.url}/blob/{self.default_branch}/{filename}" '
                         f'class="font-weight-bold" target="_blank">{filename}</a>')
         file_content = self.get_file(filename)
         for phrase in phrases:

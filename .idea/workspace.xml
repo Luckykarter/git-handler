@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18ba43ae-bcfe-4d53-a416-ab600f4dcab3" name="Changes" comment="clone by http">
+    <list default="true" id="18ba43ae-bcfe-4d53-a416-ab600f4dcab3" name="Changes" comment="add filecontains">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/handler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -86,7 +85,7 @@
       <option name="presentableId" value="Default" />
       <updated>1704888192775</updated>
       <workItem from="1704888204750" duration="5601000" />
-      <workItem from="1704901972780" duration="793000" />
+      <workItem from="1704901972780" duration="1338000" />
     </task>
     <task id="LOCAL-00001" summary="Git handler init">
       <option name="closed" value="true" />
@@ -184,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1704893632303</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="add filecontains">
+      <option name="closed" value="true" />
+      <created>1704902920567</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1704902920567</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -198,19 +205,20 @@
     <MESSAGE value="SSH Key" />
     <MESSAGE value="debug" />
     <MESSAGE value="clone by http" />
-    <option name="LAST_COMMIT_MESSAGE" value="clone by http" />
+    <MESSAGE value="add filecontains" />
+    <option name="LAST_COMMIT_MESSAGE" value="add filecontains" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/resources/handler.py</url>
-          <line>96</line>
+          <line>93</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/resources/handler.py</url>
-          <line>74</line>
+          <line>71</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
