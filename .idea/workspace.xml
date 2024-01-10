@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18ba43ae-bcfe-4d53-a416-ab600f4dcab3" name="Changes" comment="Git handler init">
+    <list default="true" id="18ba43ae-bcfe-4d53-a416-ab600f4dcab3" name="Changes" comment="uvicorn">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/conf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Procfile" beforeDir="false" afterPath="$PROJECT_DIR$/Procfile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +80,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1704888192775</updated>
-      <workItem from="1704888204750" duration="1965000" />
+      <workItem from="1704888204750" duration="2307000" />
     </task>
     <task id="LOCAL-00001" summary="Git handler init">
       <option name="closed" value="true" />
@@ -92,7 +90,23 @@
       <option name="project" value="LOCAL" />
       <updated>1704889473315</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="remove redis">
+      <option name="closed" value="true" />
+      <created>1704890180026</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1704890180026</updated>
+    </task>
+    <task id="LOCAL-00003" summary="uvicorn">
+      <option name="closed" value="true" />
+      <created>1704890370450</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1704890370450</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -100,7 +114,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Git handler init" />
-    <option name="LAST_COMMIT_MESSAGE" value="Git handler init" />
+    <MESSAGE value="remove redis" />
+    <MESSAGE value="uvicorn" />
+    <option name="LAST_COMMIT_MESSAGE" value="uvicorn" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/git_handler$git_handler.coverage" NAME="git_handler Coverage Results" MODIFIED="1704889017031" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
