@@ -52,7 +52,7 @@ class Locker:
                 f.write(os.getenv('SSH_KEY'))
         print(os.getenv('SSH_KEY'))
         print(os.listdir('/tmp'))
-        os.environ['GIT_SSH_COMMAND'] = f"ssh -i {ssh_key_path}"
+        os.environ['GIT_SSH_COMMAND'] = f"ssh -i /tmp/"
 
     def unset_ssh_key(self):
         del os.environ["GIT_SSH_COMMAND"]
