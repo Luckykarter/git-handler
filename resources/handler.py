@@ -55,7 +55,7 @@ class Locker:
 
 
 class GitHandler:
-    PATH = pathlib.Path(__file__).parent.parent.parent.resolve()
+    PATH = '/tmp/'
     TEST_PATH = os.path.join(PATH, 'test_repositories')
     DIRECTORY = 'repositories'
     CODEPAGE = 'utf-8'
