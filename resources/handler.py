@@ -1,0 +1,247 @@
+import datetime
+import shutil
+
+import git
+import os
+import time
+import pathlib
+import yaml
+import base64
+from typing import Callable, Union, List
+from enum import Enum
+from github import Github, GithubException
+from resources.conf import settings, rds
+from fastapi import HTTPException, status
+from socket import gethostname
+
+
+class Locker:
+    def __init__(self, locker_key='lock'):
+        self.key = f'{locker_key}-{gethostname()}'
+        self.rds = rds
+
+    def is_locked(self):
+        return self.rds.exists(self.key)
+
+    def wait_for_unlock(self):
+        while self.is_locked():
+            time.sleep(0.5)
+
+    def lock(self):
+        self.rds.set(self.key, 'x')
+        self.rds.expire(self.key, datetime.timedelta(hours=1))
+
+    def unlock(self):
+        if self.is_locked():
+            self.rds.delete(self.key)
+
+    def __enter__(self):
+        self.wait_for_unlock()
+        self.lock()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.unlock()
+
+
+class GitHandler:
+    PATH = pathlib.Path(__file__).parent.parent.parent.resolve()
+    TEST_PATH = os.path.join(PATH, 'test_repositories')
+    DIRECTORY = 'repositories'
+    CODEPAGE = 'utf-8'
+
+    def __init__(self, repo: str, path: str = None,
+                 default_branch: str = settings.DEFAULT_GIT_BRANCH,
+                 refresh_time: datetime.timedelta = datetime.timedelta(minutes=10)):
+        self.refresh_time = refresh_time
+        self.hostname = gethostname()
+        git_base = f'git@{settings.GITHUB_SERVER}'
+        if repo.endswith('/'):  # pragma: no cover
+            repo = repo[:-1]
+        url = f'{git_base}:{repo}.git'
+        self.url = url
+        repo_path = repo.split('/')
+        self.is_cloned = False
+
+        self._parent = os.path.join(
+            path or self.PATH, self.DIRECTORY, repo_path.pop(0))
+        self.target_dir = os.path.join(self._parent, *repo_path)
+        self.default_branch = default_branch
+        with Locker():
+            try:
+                self.repo = git.Repo(self.target_dir)
+            except (git.InvalidGitRepositoryError, git.NoSuchPathError):
+                if os.path.isdir(self.target_dir):  # pragma: no cover
+                    shutil.rmtree(self.target_dir, onerror=onerror)
+                os.makedirs(self.target_dir, mode=0o777)
+                try:
+                    self.repo = git.Repo.clone_from(url, self.target_dir)
+                    self.is_cloned = True
+                    self.updated()
+                except git.GitError:  # pragma: no cover
+                    shutil.rmtree(self.target_dir, onerror=onerror)
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                        detail=f'Repository {url} does not exist')
+            try:
+                self.repo.git.checkout(default_branch)
+            except git.GitCommandError as e:  # pragma: no cover
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    class ContentProcessors(str, Enum):
+        """
+        definition of functions that are responsible for content processing
+        """
+        cp_add_blob_content = 'Add blob content'
+        cp_encode_blob_base64 = "Encode blob to Base64"
+        cp_parse_config_yml = 'Parse YAML config'
+        cp_parse_cfg = 'Parse cfg files'
+
+    def update(self):
+        with Locker():
+            self.repo.remote().update()
+        self.updated()
+
+    def updated(self):
+        rds.set(self.update_key, 'x')
+        rds.expire(self.update_key, self.refresh_time)
+
+    @property
+    def update_key(self):
+        return f'updated-{self.url}-{self.hostname}'
+
+    def is_update_required(self):
+        return not rds.exists(self.update_key)
+
+    def get_remote_branches(self) -> List[git.RemoteReference]:
+        return self.repo.remote().refs
+
+    def get_branches_names(self) -> List[str]:
+        return [x.name.replace('origin/', '') for x in self.get_remote_branches()]
+
+    def get_params_from_cfg(self, content: bytes) -> dict:
+        params = {}
+        params_started = False
+        for x in content.decode(self.CODEPAGE).split('\n'):
+            if 'config_params' in x:
+                params_started = True
+                continue
+            if params_started and '}' in x:
+                break
+            x = x.strip()
+            if x.startswith('#') or x.startswith(';'):  # pragma: no cover
+                continue
+            line = x.split(' ', 1)
+            if len(line) == 1:
+                params[line[0]] = True  # pragma: no cover
+            elif len(line) == 2:
+                params[line[0]] = line[1].replace('\"', '')
+        return params
+
+    def get_tree(self, branch: str = None,
+                 path: Union[str, list] = None,
+                 content_processors: List[Callable[[dict, dict, git.Blob], None]] = None):
+        if path is None:
+            path = ['']
+        elif isinstance(path, str):
+            path = path.split('/')
+        if isinstance(path, list) and path[0] != '':
+            path.insert(0, '')
+
+        branch = branch or self.default_branch
+        branch = self.repo.remote().refs[branch]
+        res = {}
+        self._get_tree(res, self.repo.tree(branch), path,
+                       content_processors=content_processors)
+        return res
+
+    def get_file(self, filename: str) -> str:
+        full_path = os.path.join(self.target_dir, filename)
+        if not os.path.isfile(full_path):
+            raise HTTPException(status.HTTP_400_BAD_REQUEST,
+                                f'File {filename} does not exist')
+
+        with open(os.path.join(self.target_dir, full_path), 'r') as f:
+            return f.read()
+
+    def cp_add_blob_content(self, node: dict, file_dict: dict, blob: git.Blob):
+        content = blob.data_stream.read()
+        try:
+            content = content.decode(self.CODEPAGE)
+        except UnicodeDecodeError:  # pragma: no cover
+            content = str(content)
+        file_dict['content'] = content
+
+    def cp_encode_blob_base64(self, node: dict, file_dict: dict, blob: git.Blob):
+        content = file_dict.get('content')
+        if not content:  # pragma: no cover
+            self.cp_add_blob_content(node, file_dict, blob)
+        content = file_dict['content']
+        file_dict['content'] = base64.b64encode(content.encode(self.CODEPAGE))
+
+    def cp_parse_cfg(self, node: dict, file_dict: dict, blob: git.Blob):
+        if blob.name.endswith('cfg'):
+            content = blob.data_stream.read()
+            params = self.get_params_from_cfg(content)
+            file_dict['attributes'] = params
+
+    def cp_parse_config_yml(self, node: dict, file_dict: dict, blob: git.Blob):
+        if blob.name == 'config.yml':
+            node['config'] = yaml.safe_load(blob.data_stream.read())  # pragma: no cover
+
+    def _get_tree(self, res: dict, tree: git.Tree, path: list,
+                  idx=0, content_processors: List[Callable[[dict, dict, git.Blob], None]] = None):
+        if idx < len(path):
+            node = path[idx]
+            if tree.name.lower() != node.lower():
+                return
+
+        if tree.name not in res:
+            res[tree.name] = {}
+        if tree.blobs:
+            res[tree.name] = {'files': []}
+            for b in tree.blobs:
+                file_dict = {'filename': b.name}
+                if content_processors is not None:
+                    for func in content_processors:
+                        func(res[tree.name], file_dict, b)
+                res[tree.name]['files'].append(file_dict)
+        if tree.trees:
+            res = res[tree.name]
+            for t in tree.trees:
+                self._get_tree(res, t, path, idx + 1,
+                               content_processors=content_processors)
+
+
+def check_git_login(repository: str, github_token: str):
+    redis_key = f'login-{repository}-{github_token}'
+    if rds.exists(redis_key):
+        return
+
+    gh = Github(github_token)
+    try:
+        gh.get_repo(repository)
+        rds.set(redis_key, 'x')
+        rds.expire(redis_key, datetime.timedelta(hours=24))
+    except GithubException as e:
+        raise HTTPException(e.status, detail=e.data.get('message'))
+
+
+def onerror(func, path, exc_info):  # pragma: no cover
+    """
+    Error handler for ``shutil.rmtree``.
+
+    If the error is due to an access error (read only file)
+    it attempts to add write permission and then retries.
+
+    If the error is for another reason it re-raises the error.
+
+    Usage : ``shutil.rmtree(path, onerror=onerror)``
+    """
+    import stat
+    # Is the error an access error?
+    if not os.access(path, os.W_OK):
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    else:
+        raise
