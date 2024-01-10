@@ -19,6 +19,7 @@ from socket import gethostname
 class Locker:
     def __init__(self, locker_key='lock'):
         self.key = f'{locker_key}-{gethostname()}'
+        self.ssh_key_path = ''
 
     def is_locked(self):
         if not os.path.isfile(self.key):
@@ -54,6 +55,7 @@ class Locker:
         print(os.getenv('SSH_KEY'))
         print(os.listdir('/tmp'))
         os.environ['GIT_SSH_COMMAND'] = f"ssh -i {ssh_key_path}"
+        self.ssh_key_path = ssh_key_path
 
     def unset_ssh_key(self):
         del os.environ["GIT_SSH_COMMAND"]
@@ -92,7 +94,7 @@ class GitHandler:
             path or self.PATH, self.DIRECTORY, repo_path.pop(0))
         self.target_dir = os.path.join(self._parent, *repo_path)
         self.default_branch = default_branch
-        with Locker():
+        with Locker() as locker:
             try:
                 self.repo = git.Repo(self.target_dir)
             except (git.InvalidGitRepositoryError, git.NoSuchPathError):
@@ -100,7 +102,7 @@ class GitHandler:
                     shutil.rmtree(self.target_dir, onerror=onerror)
                 os.makedirs(self.target_dir, mode=0o777)
                 try:
-                    self.repo = git.Repo.clone_from(url, self.target_dir)
+                    self.repo = git.Repo.clone_from(url, self.target_dir, key_file=locker.ssh_key_path)
                     self.is_cloned = True
                 except git.GitError:  # pragma: no cover
                     shutil.rmtree(self.target_dir, onerror=onerror)
@@ -122,8 +124,8 @@ class GitHandler:
         cp_parse_cfg = 'Parse cfg files'
 
     def update(self):
-        with Locker():
-            self.repo.remote().update()
+        with Locker() as locker:
+            self.repo.remote().update(key_file=locker.ssh_key_path)
 
     @property
     def update_key(self):
