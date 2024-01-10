@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from resources.handler import GitHandler, check_git_login
-from resources.conf import settings, rds
+from resources.conf import settings
 from functools import wraps
 from typing import List, Optional
 
@@ -159,7 +159,6 @@ async def get_file(request: Request,
 
 @app.get('/healthcheck/', response_model=HealthCheckResponse)
 def healthcheck(request: Request) -> HealthCheckResponse:
-    rds.ping()
     return HealthCheckResponse(
         client_ip=request.client.host,
         method=request.method,

@@ -1,4 +1,5 @@
 import datetime
+import pickle
 import shutil
 
 import git
@@ -10,7 +11,7 @@ import base64
 from typing import Callable, Union, List
 from enum import Enum
 from github import Github, GithubException
-from resources.conf import settings, rds
+from resources.conf import settings
 from fastapi import HTTPException, status
 from socket import gethostname
 
@@ -18,22 +19,31 @@ from socket import gethostname
 class Locker:
     def __init__(self, locker_key='lock'):
         self.key = f'{locker_key}-{gethostname()}'
-        self.rds = rds
 
     def is_locked(self):
-        return self.rds.exists(self.key)
+        if not os.path.isfile(self.key):
+            return False
+        with open(self.key, 'rb') as f:
+            target_date = pickle.load(f)
+        if target_date < datetime.datetime.now():
+            os.remove(self.key)
+            return False
+        return True
 
     def wait_for_unlock(self):
         while self.is_locked():
             time.sleep(0.5)
 
     def lock(self):
-        self.rds.set(self.key, 'x')
-        self.rds.expire(self.key, datetime.timedelta(hours=1))
+        with open(self.key, 'wb') as f:
+            pickle.dump(datetime.datetime.now() + datetime.timedelta(hours=1), f)
 
     def unlock(self):
         if self.is_locked():
-            self.rds.delete(self.key)
+            try:
+                os.remove(self.key)
+            except:
+                pass
 
     def __enter__(self):
         self.wait_for_unlock()
@@ -77,7 +87,6 @@ class GitHandler:
                 try:
                     self.repo = git.Repo.clone_from(url, self.target_dir)
                     self.is_cloned = True
-                    self.updated()
                 except git.GitError:  # pragma: no cover
                     shutil.rmtree(self.target_dir, onerror=onerror)
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
@@ -100,18 +109,13 @@ class GitHandler:
     def update(self):
         with Locker():
             self.repo.remote().update()
-        self.updated()
-
-    def updated(self):
-        rds.set(self.update_key, 'x')
-        rds.expire(self.update_key, self.refresh_time)
 
     @property
     def update_key(self):
         return f'updated-{self.url}-{self.hostname}'
 
     def is_update_required(self):
-        return not rds.exists(self.update_key)
+        return True
 
     def get_remote_branches(self) -> List[git.RemoteReference]:
         return self.repo.remote().refs
@@ -214,17 +218,18 @@ class GitHandler:
 
 
 def check_git_login(repository: str, github_token: str):
-    redis_key = f'login-{repository}-{github_token}'
-    if rds.exists(redis_key):
-        return
-
-    gh = Github(github_token)
-    try:
-        gh.get_repo(repository)
-        rds.set(redis_key, 'x')
-        rds.expire(redis_key, datetime.timedelta(hours=24))
-    except GithubException as e:
-        raise HTTPException(e.status, detail=e.data.get('message'))
+    return True
+    # redis_key = f'login-{repository}-{github_token}'
+    # if rds.exists(redis_key):
+    #     return
+    #
+    # gh = Github(github_token)
+    # try:
+    #     gh.get_repo(repository)
+    #     rds.set(redis_key, 'x')
+    #     rds.expire(redis_key, datetime.timedelta(hours=24))
+    # except GithubException as e:
+    #     raise HTTPException(e.status, detail=e.data.get('message'))
 
 
 def onerror(func, path, exc_info):  # pragma: no cover

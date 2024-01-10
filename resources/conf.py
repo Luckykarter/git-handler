@@ -1,6 +1,5 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
-from redis import Redis
 
 
 class Settings(BaseSettings):
@@ -11,4 +10,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-rds = Redis(settings.REDIS_SERVER)
