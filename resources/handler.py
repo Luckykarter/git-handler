@@ -5,15 +5,19 @@ import shutil
 import git
 import os
 import time
-import pathlib
-import yaml
 import base64
-from typing import Callable, Union, List
+from typing import Callable, Union, List, Optional
 from enum import Enum
-from github import Github, GithubException
 from resources.conf import settings
 from fastapi import HTTPException, status
 from socket import gethostname
+from pydantic import BaseModel
+
+
+class Phrase(BaseModel):
+    content: str
+    pre: Optional[str] = ''
+    post: Optional[str] = ''
 
 
 class Locker:
@@ -156,11 +160,29 @@ class GitHandler:
                        content_processors=content_processors)
         return res
 
+    def file_contains(self, filename: str, phrases: List[Phrase]):
+        current_file = (f'<a href="{self.url}blob/{self.default_branch}/{filename}" '
+                        f'class="font-weight-bold" target="_blank">{filename}</a>')
+        file_content = self.get_file(filename)
+        for phrase in phrases:
+            content = phrase.content.strip()
+            lines = content.split('\n')
+            for line in lines:
+                if line.strip() not in file_content:
+                    msg = (f'Файл {current_file} должен содержать '
+                           f'{phrase.pre}<pre><code>{content}</code></pre>')
+                    if phrase.post:
+                        msg += '\n' + phrase.post
+                    raise HTTPException(status.HTTP_400_BAD_REQUEST, msg)
+        return file_content
+
     def get_file(self, filename: str) -> str:
         full_path = os.path.join(self.target_dir, filename)
         if not os.path.isfile(full_path):
-            raise HTTPException(status.HTTP_400_BAD_REQUEST,
-                                f'File {filename} does not exist')
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f'Файл {filename} не найден в репозитории '
+                f'<a href="{self.url}"class="font-weight-bold" target="_blank>{self.url}</a>')
 
         with open(os.path.join(self.target_dir, full_path), 'r') as f:
             return f.read()
@@ -179,6 +201,7 @@ class GitHandler:
             self.cp_add_blob_content(node, file_dict, blob)
         content = file_dict['content']
         file_dict['content'] = base64.b64encode(content.encode(self.CODEPAGE))
+
     def _get_tree(self, res: dict, tree: git.Tree, path: list,
                   idx=0, content_processors: List[Callable[[dict, dict, git.Blob], None]] = None):
         if idx < len(path):

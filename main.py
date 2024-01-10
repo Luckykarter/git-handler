@@ -5,7 +5,7 @@ from fastapi.security import APIKeyHeader
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from resources.handler import GitHandler, check_git_login
+from resources.handler import GitHandler, check_git_login, Phrase
 from resources.conf import settings
 from functools import wraps
 from typing import List, Optional
@@ -124,6 +124,7 @@ async def get_branches(request: Request,
     gh = get_git_handler(request, git_path, branch, force_update)
     return gh.get_branches_names()
 
+
 @app.get('/tree/{git_path:path}/', response_model=dict)
 @git_login
 async def get_tree(request: Request,
@@ -154,6 +155,21 @@ async def get_file(request: Request,
                    token=Security(github_token_header)) -> FileResponseModel:
     gh = get_git_handler(request, git_path, branch, force_update)
     content = gh.get_file(filename)
+    return FileResponseModel(filename=filename, content=content)
+
+
+@app.post('/file/contains/{git_path:path}/', response_model=FileResponseModel)
+@git_login
+async def get_file(request: Request,
+                   git_path: str,
+                   filename: str,
+                   phrases: List[Phrase],
+                   branch: Optional[str] = settings.DEFAULT_GIT_BRANCH,
+                   force_update: Optional[bool] = False,
+
+                   token=Security(github_token_header)) -> FileResponseModel:
+    gh = get_git_handler(request, git_path, branch, force_update)
+    content = gh.file_contains(filename, phrases)
     return FileResponseModel(filename=filename, content=content)
 
 
