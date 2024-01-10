@@ -20,6 +20,11 @@ class Phrase(BaseModel):
     post: Optional[str] = ''
 
 
+class FileCheck(BaseModel):
+    filename: str
+    phrases: List[Phrase]
+
+
 class Locker:
     def __init__(self, locker_key='lock'):
         self.key = f'{locker_key}-{gethostname()}'
@@ -160,21 +165,22 @@ class GitHandler:
                        content_processors=content_processors)
         return res
 
-    def file_contains(self, filename: str, phrases: List[Phrase]):
-        current_file = (f'<a href="{self.url}/blob/{self.default_branch}/{filename}" '
-                        f'class="font-weight-bold" target="_blank">{filename}</a>')
-        file_content = self.get_file(filename)
-        for phrase in phrases:
-            content = phrase.content.strip()
-            lines = content.split('\n')
-            for line in lines:
-                if line.strip() not in file_content:
-                    msg = (f'Файл {current_file} должен содержать '
-                           f'{phrase.pre}<pre><code>{content}</code></pre>')
-                    if phrase.post:
-                        msg += '\n' + phrase.post
-                    raise HTTPException(status.HTTP_400_BAD_REQUEST, msg)
-        return file_content
+    def files_contains(self, checks: List[FileCheck]):
+        for file_check in checks:
+            filename = file_check.filename
+            current_file = (f'<a href="{self.url}/blob/{self.default_branch}/{filename}" '
+                            f'class="font-weight-bold" target="_blank">{filename}</a>')
+            file_content = self.get_file(filename)
+            for phrase in file_check.phrases:
+                content = phrase.content.strip()
+                lines = content.split('\n')
+                for line in lines:
+                    if line.strip() not in file_content:
+                        msg = (f'Файл {current_file} должен содержать '
+                               f'{phrase.pre}<pre><code>{content}</code></pre>')
+                        if phrase.post:
+                            msg += '\n' + phrase.post
+                        raise HTTPException(status.HTTP_400_BAD_REQUEST, msg)
 
     def get_file(self, filename: str) -> str:
         full_path = os.path.join(self.target_dir, filename)
