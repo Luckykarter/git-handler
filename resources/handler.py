@@ -46,29 +46,13 @@ class Locker:
             except:
                 pass
 
-    def prepare_ssh_key(self):
-        os.makedirs('/tmp/.ssh', exist_ok=True)
-        ssh_key_path = "/tmp/.ssh/id_rsa"
-        if not os.path.isfile(ssh_key_path):
-            with open(ssh_key_path, 'w') as f:
-                f.write(os.getenv('SSH_KEY'))
-        print(os.getenv('SSH_KEY'))
-        print(os.listdir('/tmp'))
-        os.environ['GIT_SSH_COMMAND'] = f"ssh -i {ssh_key_path}"
-        self.ssh_key_path = ssh_key_path
-
-    def unset_ssh_key(self):
-        del os.environ["GIT_SSH_COMMAND"]
-
     def __enter__(self):
         self.wait_for_unlock()
         self.lock()
-        self.prepare_ssh_key()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.unlock()
-        self.unset_ssh_key()
 
 
 class GitHandler:
@@ -82,13 +66,10 @@ class GitHandler:
                  refresh_time: datetime.timedelta = datetime.timedelta(minutes=10)):
         self.refresh_time = refresh_time
         self.hostname = gethostname()
-        git_base = f'git@{settings.GITHUB_SERVER}'
-        if repo.endswith('/'):  # pragma: no cover
-            repo = repo[:-1]
-        url = f'{git_base}:{repo}.git'
-        self.url = url
+        self.url = repo
         repo_path = repo.split('/')
         self.is_cloned = False
+        repo_path = repo_path[3:]
 
         self._parent = os.path.join(
             path or self.PATH, self.DIRECTORY, repo_path.pop(0))
@@ -102,12 +83,13 @@ class GitHandler:
                     shutil.rmtree(self.target_dir, onerror=onerror)
                 os.makedirs(self.target_dir, mode=0o777)
                 try:
-                    self.repo = git.Repo.clone_from(url, self.target_dir, key_file=locker.ssh_key_path)
+                    self.repo = git.Repo.clone_from(repo, self.target_dir)
                     self.is_cloned = True
-                except git.GitError:  # pragma: no cover
+                except git.GitError as e:  # pragma: no cover
+                    print(e)
                     shutil.rmtree(self.target_dir, onerror=onerror)
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                        detail=f'Repository {url} does not exist')
+                                        detail=f'Repository {repo} does not exist. Error: {e}')
             try:
                 self.repo.git.checkout(default_branch)
             except git.GitCommandError as e:  # pragma: no cover
@@ -123,7 +105,7 @@ class GitHandler:
 
     def update(self):
         with Locker() as locker:
-            self.repo.remote().update(key_file=locker.ssh_key_path)
+            self.repo.remote().update()
 
     @property
     def update_key(self):

@@ -55,7 +55,11 @@
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
+      <envs>
+        <env name="SSH_KEY" value="-----BEGIN OPENSSH PRIVATE KEY----- b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW QyNTUxOQAAACAFsrnJXRJMqGkA+IvPai/8xA5fS/IJ2hyVUgzOn+xQCAAAAJiqeBVtqngV bQAAAAtzc2gtZWQyNTUxOQAAACAFsrnJXRJMqGkA+IvPai/8xA5fS/IJ2hyVUgzOn+xQCA AAAEBzZpuhfI0M/1j8EniD+e9o1c885PgNk1ISr31rPF7llwWyucldEkyoaQD4i89qL/zE Dl9L8gnaHJVSDM6f7FAIAAAAEmZlcm90ZXg3QGdtYWlsLmNvbQECAw== -----END OPENSSH PRIVATE KEY-----" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/.venv/bin/python" />
+      <option name="SDK_NAME" value="Python 3.9 (git_handler)" />
       <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -80,7 +84,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1704888192775</updated>
-      <workItem from="1704888204750" duration="3866000" />
+      <workItem from="1704888204750" duration="5347000" />
     </task>
     <task id="LOCAL-00001" summary="Git handler init">
       <option name="closed" value="true" />
@@ -162,7 +166,15 @@
       <option name="project" value="LOCAL" />
       <updated>1704892048336</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="debug">
+      <option name="closed" value="true" />
+      <created>1704892082167</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1704892082167</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -177,7 +189,23 @@
     <MESSAGE value="debug" />
     <option name="LAST_COMMIT_MESSAGE" value="debug" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/resources/handler.py</url>
+          <line>90</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/resources/handler.py</url>
+          <line>67</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/git_handler$git_handler.coverage" NAME="git_handler Coverage Results" MODIFIED="1704889017031" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/git_handler$git_handler.coverage" NAME="git_handler Coverage Results" MODIFIED="1704893544536" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>
