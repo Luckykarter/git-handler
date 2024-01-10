@@ -45,13 +45,25 @@ class Locker:
             except:
                 pass
 
+    def prepare_ssh_key(self):
+        ssh_key_path = "/tmp/key"
+        if not os.path.isfile(ssh_key_path):
+            with open(ssh_key_path, 'w') as f:
+                f.write(os.getenv('SSH_KEY'))
+        os.environ['GIT_SSH_COMMAND'] = f"ssh -i {ssh_key_path}"
+
+    def unset_ssh_key(self):
+        del os.environ["GIT_SSH_COMMAND"]
+
     def __enter__(self):
         self.wait_for_unlock()
         self.lock()
+        self.prepare_ssh_key()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.unlock()
+        self.unset_ssh_key()
 
 
 class GitHandler:
