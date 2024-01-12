@@ -102,6 +102,7 @@ class GitHandler:
                                         detail=f'Repository {repo} does not exist. Error: {e}')
             try:
                 self.repo.git.checkout(default_branch)
+                self.repo.remote().update()
             except git.GitCommandError as e:  # pragma: no cover
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

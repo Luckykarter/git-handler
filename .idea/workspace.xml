@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18ba43ae-bcfe-4d53-a416-ab600f4dcab3" name="Changes" comment="always update">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="18ba43ae-bcfe-4d53-a416-ab600f4dcab3" name="Changes" comment="underline links">
       <change beforePath="$PROJECT_DIR$/resources/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/handler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -85,7 +84,7 @@
       <option name="presentableId" value="Default" />
       <updated>1704888192775</updated>
       <workItem from="1704888204750" duration="5601000" />
-      <workItem from="1704901972780" duration="4685000" />
+      <workItem from="1704901972780" duration="4831000" />
     </task>
     <task id="LOCAL-00001" summary="Git handler init">
       <option name="closed" value="true" />
@@ -231,7 +230,15 @@
       <option name="project" value="LOCAL" />
       <updated>1705073456902</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="underline links">
+      <option name="closed" value="true" />
+      <created>1705077397491</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1705077397491</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -249,7 +256,8 @@
     <MESSAGE value="add filechecks" />
     <MESSAGE value="correct wording" />
     <MESSAGE value="always update" />
-    <option name="LAST_COMMIT_MESSAGE" value="always update" />
+    <MESSAGE value="underline links" />
+    <option name="LAST_COMMIT_MESSAGE" value="underline links" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
