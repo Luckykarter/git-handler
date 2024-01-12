@@ -116,7 +116,8 @@ class GitHandler:
         cp_encode_blob_base64 = "Encode blob to Base64"
 
     def update(self):
-        self.repo.remote().fetch().pull()
+        self.repo.remote().fetch()
+        self.repo.remote().pull()
 
     @property
     def current_branch(self):
