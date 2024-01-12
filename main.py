@@ -44,10 +44,7 @@ class ExceptionModel(ResponseModel):
 
 class HealthCheckResponse(BaseModel):
     client_ip: str
-    method: str
-    headers: dict
-    query_params: dict
-    message: str = "Response from Git Proxy"
+    message: str = "Response from Git Handler"
 
 
 async def get_response(model: BaseModel, status_code: int):  # pragma: no cover
@@ -106,11 +103,9 @@ async def update_repo(request: Request,
     gh = get_git_handler(request, git_path, branch)
     if gh.is_cloned:
         detail = f'{git_path} cloned'
-    elif force_update or gh.is_update_required():
+    else:
         gh.update()
         detail = f'{git_path} updated'
-    else:
-        detail = f'{git_path} does not require update'
     return ResponseModel(detail=detail)
 
 
@@ -160,7 +155,7 @@ async def get_file(request: Request,
 
 @app.post('/file/contains/{git_path:path}/')
 @git_login
-async def get_file(request: Request,
+async def file_contains(request: Request,
                    git_path: str,
                    phrases: List[FileCheck],
                    branch: Optional[str] = settings.DEFAULT_GIT_BRANCH,
@@ -175,19 +170,9 @@ async def get_file(request: Request,
 def healthcheck(request: Request) -> HealthCheckResponse:
     return HealthCheckResponse(
         client_ip=request.client.host,
-        method=request.method,
-        headers=request.headers.items(),
-        query_params=request.query_params.items()
     )
 
 
 @app.get('/')
 def main_redirect():
     return RedirectResponse('/docs')
-
-#
-# if __name__ == 'main':  # pragma: no cover
-#     import uvicorn
-#
-#     uvicorn.run(app, host='0.0.0.0', port=int(os.getenv('PORT', '8000')))
-#

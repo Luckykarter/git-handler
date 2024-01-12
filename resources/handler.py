@@ -96,7 +96,6 @@ class GitHandler:
                     self.repo = git.Repo.clone_from(repo, self.target_dir)
                     self.is_cloned = True
                 except git.GitError as e:  # pragma: no cover
-                    print(e)
                     shutil.rmtree(self.target_dir, onerror=onerror)
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                         detail=f'Repository {repo} does not exist. Error: {e}')
@@ -123,42 +122,17 @@ class GitHandler:
     def current_branch(self):
         return self.repo.git.branch('--show-current')
 
-    @property
-    def update_key(self):
-        return f'updated-{self.url}-{self.hostname}'
-
-    def is_update_required(self):
-        return True
-
     def get_remote_branches(self) -> List[git.RemoteReference]:
         return self.repo.remote().refs
 
     def get_branches_names(self) -> List[str]:
         return [x.name.replace('origin/', '') for x in self.get_remote_branches()]
 
-    def get_params_from_cfg(self, content: bytes) -> dict:
-        params = {}
-        params_started = False
-        for x in content.decode(self.CODEPAGE).split('\n'):
-            if 'config_params' in x:
-                params_started = True
-                continue
-            if params_started and '}' in x:
-                break
-            x = x.strip()
-            if x.startswith('#') or x.startswith(';'):  # pragma: no cover
-                continue
-            line = x.split(' ', 1)
-            if len(line) == 1:
-                params[line[0]] = True  # pragma: no cover
-            elif len(line) == 2:
-                params[line[0]] = line[1].replace('\"', '')
-        return params
 
     def get_tree(self, branch: str = None,
                  path: Union[str, list] = None,
                  content_processors: List[Callable[[dict, dict, git.Blob], None]] = None):
-        if path is None:
+        if path is None:    # pragma: no cover
             path = ['']
         elif isinstance(path, str):
             path = path.split('/')
