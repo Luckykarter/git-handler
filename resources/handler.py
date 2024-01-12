@@ -188,7 +188,7 @@ class GitHandler:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
                 f'Файл {filename} не найден в репозитории '
-                f'<a href="{self.url}" class="font-weight-bold" target="_blank>{self.url}</a>')
+                f'<a href="{self.url}" class="font-weight-bold" target="_blank">{self.url}</a>')
 
         with open(os.path.join(self.target_dir, full_path), 'r') as f:
             return f.read()
