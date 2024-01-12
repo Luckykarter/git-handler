@@ -168,6 +168,7 @@ class GitHandler:
         return res
 
     def files_contains(self, checks: List[FileCheck]):
+        self.update()
         for file_check in checks:
             filename = file_check.filename
             current_file = (f'<a href="{self.url}/blob/{self.default_branch}/{filename}" '
