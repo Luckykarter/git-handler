@@ -170,7 +170,7 @@ class GitHandler:
         for file_check in checks:
             filename = file_check.filename
             current_file = (f'<a href="{self.url}/blob/{self.default_branch}/{filename}" '
-                            f'class="font-weight-bold" target="_blank">{filename}</a>')
+                            f'class="font-weight-bold" target="_blank"><u>{filename}</u></a>')
             file_content = self.get_file(filename)
             for phrase in file_check.phrases:
                 content = phrase.content.strip()
@@ -189,7 +189,7 @@ class GitHandler:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
                 f'Файл {filename} не найден в репозитории '
-                f'<a href="{self.url}" class="font-weight-bold" target="_blank">{self.url}</a>')
+                f'<a href="{self.url}" class="font-weight-bold" target="_blank"><u>{self.url}</u></a>')
 
         with open(os.path.join(self.target_dir, full_path), 'r') as f:
             return f.read()
