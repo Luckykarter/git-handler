@@ -87,7 +87,7 @@ class GitHandler:
         with Locker() as locker:
             try:
                 self.repo = git.Repo(self.target_dir)
-                self.repo.remote().update()
+                self.update()
             except (git.InvalidGitRepositoryError, git.NoSuchPathError):
                 if os.path.isdir(self.target_dir):  # pragma: no cover
                     shutil.rmtree(self.target_dir, onerror=onerror)
@@ -100,12 +100,13 @@ class GitHandler:
                     shutil.rmtree(self.target_dir, onerror=onerror)
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                         detail=f'Repository {repo} does not exist. Error: {e}')
-            try:
-                self.repo.git.checkout(default_branch)
-                self.repo.remote().update()
-            except git.GitCommandError as e:  # pragma: no cover
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+            if default_branch != self.current_branch:
+                try:
+                    self.repo.git.checkout(default_branch)
+                    self.update()
+                except git.GitCommandError as e:  # pragma: no cover
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     class ContentProcessors(str, Enum):
         """
@@ -115,8 +116,11 @@ class GitHandler:
         cp_encode_blob_base64 = "Encode blob to Base64"
 
     def update(self):
-        with Locker() as locker:
-            self.repo.remote().update()
+        self.repo.remote().fetch().pull()
+
+    @property
+    def current_branch(self):
+        return self.repo.git.branch('--show-current')
 
     @property
     def update_key(self):
