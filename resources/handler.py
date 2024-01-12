@@ -87,6 +87,7 @@ class GitHandler:
         with Locker() as locker:
             try:
                 self.repo = git.Repo(self.target_dir)
+                self.repo.remote().update()
             except (git.InvalidGitRepositoryError, git.NoSuchPathError):
                 if os.path.isdir(self.target_dir):  # pragma: no cover
                     shutil.rmtree(self.target_dir, onerror=onerror)
